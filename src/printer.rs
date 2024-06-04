@@ -3,9 +3,10 @@ use super::network;
 use super::qr;
 use std::fs::File;
 use std::io::Write;
+use image::EncodableLayout;
 
 pub struct Printer {
-    message: Vec<u8>,
+    pub message: Vec<u8>,
 }
 
 
@@ -22,8 +23,12 @@ impl Printer {
         p
     }
 
+    pub fn dump(&mut self) -> Vec<u8> {
+        let res = self.message.clone();
+        return res
+    }
 
-    ///Add a list of u8 characters to be printed. 
+    ///Add a list of u8 characters to be printed.
     ///This is intended to mainly be used to print plaintext.
     ///It could however be used for commands as well.
     pub fn add(&mut self, text: Vec<u8>) {
@@ -33,13 +38,13 @@ impl Printer {
     }
 
 
-    ///Prints the given qr code. 
+    ///Prints the given qr code.
     ///The qr code is to be constructed with the qr submodule..
     pub fn add_qr(&mut self, qr: qr::Qr) {
         self.add(qr.export());
     }
 
-    ///Add a list of str to be printed. 
+    ///Add a list of str to be printed.
     ///keep in mind that the printer only works on ASCII characters.
     ///So it's the responsibility of the callee to make sure that the string is ASCII.
     ///If not then it will most likely be malformed.
@@ -120,7 +125,7 @@ impl Printer {
     ///This function will set the width of the barcode
     ///The actual width depends on the printer, try and find what works for you.
     ///Can be given values between 2-6
-    ///Not sure why this is the case, but it is. 
+    ///Not sure why this is the case, but it is.
     ///Will set to either highest or lowest if out of range.
     pub fn set_barcode_width(&mut self, mut width: u8) {
         if width >6 {
@@ -140,7 +145,7 @@ impl Printer {
     ///There are two kinds of ways to print barcode, either constant::MODE_A or constant::MODE_B
     ///You have to know which mode is right for you.
     pub fn add_barcode(&mut self, text: &str, barcode_type: u8, mode: u8) {
-        
+
         if mode == constants::MODE_A {
             self._barcode_mode_a(text, barcode_type);
         }
@@ -178,7 +183,7 @@ impl Printer {
         self.message.push(0x2D);
         self.message.push(value);
     }
-    
+
     ///Call this to change the spacing between lines
     ///This is done by giving a value between 0 and 255
     pub fn set_line_spacing(&mut self, value: u8) {
